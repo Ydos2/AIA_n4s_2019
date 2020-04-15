@@ -10,6 +10,7 @@ MAIN =	src/main.c
 SRC	=	src/ai_src/ai_core.c	\
 		src/cmd.c				\
 		src/get_next_line.c		\
+		src/ai_src/set_cmd.c	\
 
 OBJ	=	$(SRC:.c=.o) $(MAIN:.c=.o)
 

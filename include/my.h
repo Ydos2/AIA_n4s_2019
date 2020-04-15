@@ -5,6 +5,7 @@
 ** print the alphabet in ascending order
 */
 
+float my_atof(char *str);
 void my_putchar(char c);
 int my_usage(int a, int b);
 int my_isneg(int nb);

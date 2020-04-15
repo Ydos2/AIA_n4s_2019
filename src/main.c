@@ -12,7 +12,7 @@
 static void draw_help(void)
 {
     write(1, "USAGE\n", 6);
-    write(1, "\t./vrep.sh\n", 11);
+    write(1, "\t./coppeliaSim.sh and in another terminal ./pipe.sh\n", 52);
 }
 
 int main(int ac, char **av)

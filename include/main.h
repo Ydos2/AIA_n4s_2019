@@ -29,4 +29,8 @@ int ai_core(void);
 // cmd.c
 int cmd_ex(char *cmd);
 
+// set_cmd.c
+int set_speed(float mid);
+int set_dir(char **tab, float mid);
+
 #endif /* !MAIN_H_ */
