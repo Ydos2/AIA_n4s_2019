@@ -48,6 +48,5 @@ char *fae_itos(int nb)
         str[i] = (nb % 10) + '0';
         nb /= 10;
     }
-    fae_put("%s\n", str);
     return str;
 }

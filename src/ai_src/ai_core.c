@@ -8,82 +8,43 @@
 #include <stdlib.h>
 #include "my.h"
 #include "main.h"
+#include "fae.h"
 
-static char **str_to_tab(char *str, char lim)
+static answer_t select_speed(answer_t feedback, int *reverse)
 {
-    char **tab = malloc(sizeof(char **) * my_strlen(str));
-    int j = 0;
-
-    for (int k = 0, i = 0; str[i] != 0; k = 0) {
-        tab[j] = malloc(sizeof(char *) * my_strlen(str));
-        while (str[i] == lim && str[i++] != 0);
-        while (str[i] != lim && str[i] != 0)
-            tab[j][k++] = str[i++];
-        tab[j++][k] = 0;
-        while (str[i] == lim && str[i++] != 0);
-    }
-    tab[j] = NULL;
-    return (tab);
-}
-
-static char *check_infos(char *str)
-{
-    int a = 0;
-    int b = 0;
-    char *tmp = malloc(sizeof(char *) * 100);
-
-    while (a != 3)
-        if (str[b++] == ':')
-            a++;
-    a = 0;
-    while (str[b] != 0) {
-        if ((str[b] >= '0' && str[b] <= '9') 
-        || str[b] == '.' || str[b] == ':') {
-            tmp[a] = str[b];
-            a++;
-        }
-        b++;
-    }
-    tmp[a - 1] = '\0';
-    return (tmp);
-}
-
-static int select_speed(void)
-{
-    char *str = NULL;
-    char **tab;
     float mid;
 
-    my_putstr("get_info_lidar\n");
-    str = get_next_line(0);
-    str = check_infos(str);
-    tab = str_to_tab(str, ':');
-    mid = my_atof(tab[15]);
-    set_speed(mid);
-    return (0);
+    mid = feedback.feedback.lidar[15];
+    *reverse = 1;
+    return set_speed(mid, reverse);
 }
 
-static int select_rotation(void)
+static answer_t select_rotation(answer_t feedback, int reverse)
 {
-    char *str = NULL;
-    char **tab;
-    float mid;
-
-    my_putstr("get_info_lidar\n");
-    str = get_next_line(0);
-    str = check_infos(str);
-    tab = str_to_tab(str, ':');
-    mid = my_atof(tab[15]);
-    set_dir(tab, mid);
-    return (0);
+    return set_dir(feedback, reverse);
 }
 
 int ai_core(void)
 {
-    cmd_ex("start_simulation\n");
-    while (1) {
-        select_speed();
-        select_rotation();
+    answer_t feedback = {0};
+    answer_t tmp = {0};
+    int check = 0;
+    int reverse = 1;
+
+    feedback = cmd_ex(START_SIMULATION, 0);
+    if (feedback.status == 0) {
+        fae_err_put("Launch failed\n");
+        return 84;
     }
+    check = feedback.checkpoint.code;
+    while (feedback.checkpoint.code != TRACK_CLEARED) {
+        feedback = cmd_ex(GET_INFO_LIDAR, 0);
+        check = feedback.checkpoint.code;
+        tmp = select_speed(feedback, &reverse);
+        check = (check < tmp.checkpoint.code) ? tmp.checkpoint.code : check;
+        tmp = select_rotation(feedback, reverse);
+        check = (check < tmp.checkpoint.code) ? tmp.checkpoint.code : check;
+    }
+    cmd_ex(STOP_SIMULATION, 0);
     return (0);
 }
