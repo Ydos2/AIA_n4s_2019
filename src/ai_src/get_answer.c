@@ -21,6 +21,10 @@ int set_checkpoint(char *str)
     result = (!fae_strcmp(str, "CP Cleared")) ? 2 : result;
     result = (!fae_strcmp(str, "Lap Cleared")) ? 3 : result;
     result = (!fae_strcmp(str, "Track Cleared")) ? 4 : result;
+    if (result == 3)
+        write(2, "Lap Cleared\n", 12);
+    if (result == 4)
+        write(2, "Track Cleared\n", 14);
     return result;
 }
 
@@ -67,6 +71,10 @@ answer_t get_answer(int call_code)
     int len = 0;
 
     str = get_next_line(0);
+    if (!str) {
+        answer.checkpoint.code = 4;
+        return answer;
+    }
     tab = str_to_tab(str, ':', &len);
     answer = set_answer(tab, len, call_code);
     return answer;

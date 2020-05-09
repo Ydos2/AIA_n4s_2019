@@ -25,8 +25,8 @@ answer_t set_speed(float mid, int *result)
         return (cmd_ex(CAR_FORWARD, 0.1));
     *result = -1;
     if (mid >= 100)
-        return (cmd_ex(CAR_BACKWARD, 1));
-    return (cmd_ex(CAR_BACKWARD, 1));
+        return (cmd_ex(CAR_BACKWARD, 0.5));
+    return (cmd_ex(CAR_BACKWARD, 0.5));
 }
 
 static answer_t select_direction(float f, float val)
@@ -38,14 +38,18 @@ static answer_t select_direction(float f, float val)
 
 static answer_t set_urgence(float left, float right, int reverse)
 {
+    if (left < 50)
+        return (select_direction(left - right, 1 * reverse));
     if (left < 100)
-        return (select_direction(-1, 1 * reverse));
+        return (select_direction(left - right, 0.6 * reverse));
     if (left < 200)
-        return (select_direction(-1, 0.3 * reverse));
+        return (select_direction(left - right, 0.2 * reverse));
+    if (right < 50)
+        return (select_direction(left - right, 1 * reverse));
     if (right < 100)
-        return (select_direction(1, 1 * reverse));
+        return (select_direction(left - right, 0.5 * reverse));
     if (right < 200)
-        return (select_direction(1, 0.3 * reverse));
+        return (select_direction(left - right, 0.2 * reverse));
     return (answer_t) {0};
 }
 
@@ -55,14 +59,16 @@ answer_t set_dir(answer_t feedback, int reverse)
     float right = feedback.feedback.lidar[31];
     float left = feedback.feedback.lidar[1];
 
+    if (left < 200 && right < 200 && mid > 1000)
+        return (select_direction(left - right, 0.005 * reverse));
     if (left < 200 || right < 200)
         return set_urgence(left, right, reverse);
     if (mid >= 1500)
         return (select_direction(left - right, 0.005 * reverse));
     if (mid >= 1000)
-        return (select_direction(left - right, 0.09 * reverse));
+        return (select_direction(left - right, 0.05 * reverse));
     if (mid >= 600)
-        return (select_direction(left - right, 0.1 * reverse));
+        return (select_direction(left - right, 0.2 * reverse));
     if (mid >= 400)
         return (select_direction(left - right, 0.4 * reverse));
     if (mid >= 200)

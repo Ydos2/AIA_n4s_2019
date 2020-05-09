@@ -44,6 +44,8 @@ int ai_core(void)
         check = (check < tmp.checkpoint.code) ? tmp.checkpoint.code : check;
         tmp = select_rotation(feedback, reverse);
         check = (check < tmp.checkpoint.code) ? tmp.checkpoint.code : check;
+        tmp = cmd_ex(CYCLE_WAIT, 1);
+        check = (check < tmp.checkpoint.code) ? tmp.checkpoint.code : check;
     }
     cmd_ex(STOP_SIMULATION, 0);
     return (0);
